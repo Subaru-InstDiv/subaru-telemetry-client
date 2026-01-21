@@ -11,7 +11,7 @@ class Radio:
     """A class to communicate with the STS board (STS radio)."""
 
     # Default STS server IP address and STS board TCP port number
-    HOST = 'sts'
+    HOST = "sts"
     PORT = 9001
 
     # Default timeout (seconds)
@@ -20,49 +20,46 @@ class Radio:
     def __init__(self, host=HOST, port=PORT, timeout=TIMEOUT):
         """Create a Radio object.
 
-           Arguments
-               host: Domain name or IP address of the STS server
-               port: TCP port number that the STS board listens to
-               timeout: Network socket timeout in seconds
+        Arguments
+            host: Domain name or IP address of the STS server
+            port: TCP port number that the STS board listens to
+            timeout: Network socket timeout in seconds
         """
-
         self.host = host
         self.port = port
         self.timeout = timeout
 
     def __repr__(self):
-
-        return f'{self.__class__.__name__}(host={self.host!r}, port={self.port!r}, timeout={self.timeout!r})'
+        return f"{self.__class__.__name__}(host={self.host!r}, port={self.port!r}, timeout={self.timeout!r})"
 
     def transmit(self, data):
         """Send STS data to the STS board.
 
-           Argument
-               data: Sequence of Datum objects
+        Argument
+            data: Sequence of Datum objects
 
-           Result
-               None
+        Result
+            None
         """
-
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.settimeout(self.timeout)
             sock.connect((self.host, self.port))
             # Enter in binary write mode
-            sock.sendall(b'W\n')
+            sock.sendall(b"W\n")
             response = sock.makefile().readline()
-            if 'OK: Write On' in response:
+            if "OK: Write On" in response:
                 for datum in data:
                     packet = Radio.pack(datum)
                     sock.sendall(packet)
                 # Exit from binary write mode
-                sock.sendall(b'\n')
+                sock.sendall(b"\n")
                 response = sock.makefile().readline()
-                if 'OK: Write Off' in response:
+                if "OK: Write Off" in response:
                     # Send quit command to disconnect from STSboard gracefully
-                    sock.sendall(b'Q\n')
+                    sock.sendall(b"Q\n")
             else:
-                msg = f'Invalid response: {response}'
+                msg = f"Invalid response: {response}"
                 raise RuntimeError(msg)
         finally:
             sock.close()
@@ -70,30 +67,29 @@ class Radio:
     def receive(self, ids):
         """Retrieve latest STS data from the STS board.
 
-           Argument
-               ids: Sequence of STS radio IDs
+        Argument
+            ids: Sequence of STS radio IDs
 
-           Result
-               List of Datum objects
+        Result
+            List of Datum objects
         """
-
         data = []
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.settimeout(self.timeout)
             sock.connect((self.host, self.port))
             # Enter in binary read mode
-            sock.sendall(b'R\n')
+            sock.sendall(b"R\n")
             response = sock.makefile().readline()
-            if 'OK: Read On' in response:
+            if "OK: Read On" in response:
                 for id in ids:
-                    message = struct.pack('!I', int(id))
+                    message = struct.pack("!I", int(id))
                     sock.sendall(message)
                     response = Radio._recv_packet(sock)
                     datum = Radio.unpack(response)
                     data.append(datum)
                 # Exit from binary read mode
-                message = struct.pack('!i', -1)
+                message = struct.pack("!i", -1)
                 sock.sendall(message)
                 # response = sock.makefile().readline()
                 # # NB: STSboard does send the following message at the end of binary read
@@ -101,16 +97,16 @@ class Radio:
                 #     # Send quit command to disconnect from STSboard gracefully
                 #     sock.sendall(b'Q\n')
             else:
-                msg = f'Invalid response: {response}'
+                msg = f"Invalid response: {response}"
                 raise RuntimeError(msg)
         finally:
             sock.close()
         return data
 
     # Format strings used by the struct module to pack/unpack STS board binary data
-    _HEADER_FORMAT = '!BIBI'
-    _INTEGER_FORMAT = '!i'
-    _FLOAT_FORMAT = '!d'
+    _HEADER_FORMAT = "!BIBI"
+    _INTEGER_FORMAT = "!i"
+    _FLOAT_FORMAT = "!d"
 
     # Size of each STS board binary data components
     _HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
@@ -125,23 +121,24 @@ class Radio:
         """Create STS board binary data from a Datum object."""
 
         def pack_header(packet, size):
-
             struct.pack_into(
-                Radio._HEADER_FORMAT, packet, 0,
-                size | 0x80, datum.id, datum.format, datum.timestamp
+                Radio._HEADER_FORMAT,
+                packet,
+                0,
+                size | 0x80,
+                datum.id,
+                datum.format,
+                datum.timestamp,
             )
 
         def pack_integer(packet, offset, number):
-
             struct.pack_into(Radio._INTEGER_FORMAT, packet, offset, int(number))
 
         def pack_float(packet, offset, number):
-
             struct.pack_into(Radio._FLOAT_FORMAT, packet, offset, float(number))
 
         def pack_text(packet, offset, text):
-
-            packet[offset:] = text.encode('latin-1')[:Radio._MAXIMUM_PACKET_SIZE - offset]
+            packet[offset:] = text.encode("latin-1")[: Radio._MAXIMUM_PACKET_SIZE - offset]
 
         if datum.format == Datum.INTEGER:
             size = Radio._HEADER_SIZE + Radio._INTEGER_SIZE
@@ -161,7 +158,7 @@ class Radio:
         elif datum.format == Datum.INTEGER_WITH_TEXT:
             size = min(
                 Radio._HEADER_SIZE + Radio._INTEGER_SIZE + len(datum.value[1]),
-                Radio._MAXIMUM_PACKET_SIZE
+                Radio._MAXIMUM_PACKET_SIZE,
             )
             packet = bytearray(size)
             pack_header(packet, size)
@@ -170,14 +167,14 @@ class Radio:
         elif datum.format == Datum.FLOAT_WITH_TEXT:
             size = min(
                 Radio._HEADER_SIZE + Radio._FLOAT_SIZE + len(datum.value[1]),
-                Radio._MAXIMUM_PACKET_SIZE
+                Radio._MAXIMUM_PACKET_SIZE,
             )
             packet = bytearray(size)
             pack_header(packet, size)
             pack_float(packet, Radio._HEADER_SIZE, datum.value[0])
             pack_text(packet, Radio._HEADER_SIZE + Radio._FLOAT_SIZE, datum.value[1])
         else:
-            msg = f'Invalid data type ({datum.format})'
+            msg = f"Invalid data type ({datum.format})"
             raise RuntimeError(msg)
         return packet
 
@@ -186,29 +183,25 @@ class Radio:
         """Create a Datum object from STS board binary data."""
 
         def unpack_header():
-
             return struct.unpack_from(Radio._HEADER_FORMAT, packet, 0)
 
         def unpack_integer(offset):
-
             return struct.unpack_from(Radio._INTEGER_FORMAT, packet, offset)[0]
 
         def unpack_float(offset):
-
             return struct.unpack_from(Radio._FLOAT_FORMAT, packet, offset)[0]
 
         def unpack_text(offset, size):
-
-            return packet[offset:size].decode('latin-1')
+            return packet[offset:size].decode("latin-1")
 
         datum = Datum()
         size, datum.id, datum.format, datum.timestamp = unpack_header()
         if not size & 0x80:
-            msg = f'Invalid packet header ({size})'
+            msg = f"Invalid packet header ({size})"
             raise RuntimeError(msg)
         size &= ~0x80
         if size != len(packet):
-            msg = f'Invalid packet size ({len(packet)})'
+            msg = f"Invalid packet size ({len(packet)})"
             raise RuntimeError(msg)
         if datum.format == Datum.INTEGER:
             datum.value = unpack_integer(Radio._HEADER_SIZE)
@@ -219,22 +212,21 @@ class Radio:
         elif datum.format == Datum.INTEGER_WITH_TEXT:
             datum.value = (
                 unpack_integer(Radio._HEADER_SIZE),
-                unpack_text(Radio._HEADER_SIZE + Radio._INTEGER_SIZE, size)
+                unpack_text(Radio._HEADER_SIZE + Radio._INTEGER_SIZE, size),
             )
         elif datum.format == Datum.FLOAT_WITH_TEXT:
             datum.value = (
                 unpack_float(Radio._HEADER_SIZE),
-                unpack_text(Radio._HEADER_SIZE + Radio._FLOAT_SIZE, size)
+                unpack_text(Radio._HEADER_SIZE + Radio._FLOAT_SIZE, size),
             )
         else:
-            msg = f'Invalid data type ({datum.format})'
+            msg = f"Invalid data type ({datum.format})"
             raise RuntimeError(msg)
         return datum
 
     @staticmethod
     def _recv_packet(sock):
         """Receive STS board binary data from a socket 'sock'."""
-
         header = Radio._recvn(sock, 1, socket.MSG_PEEK)
         size = struct.unpack(Radio._HEADER_FORMAT[:2], header)[0] & ~0x80
         return Radio._recvn(sock, size)
@@ -242,15 +234,14 @@ class Radio:
     @staticmethod
     def _recvn(sock, size, flags=0):
         """Receive exactly 'size' bytes from a socket 'sock'."""
-
         buffer = bytearray(size)
         offset = 0
         while offset < size:
             buffer_ = sock.recv(size - offset, flags)
             size_ = len(buffer_)
             if not size_:
-                msg = 'Connection closed by peer'
+                msg = "Connection closed by peer"
                 raise RuntimeError(msg)
-            buffer[offset:offset + size_] = buffer_
+            buffer[offset : offset + size_] = buffer_
             offset += size_
         return buffer

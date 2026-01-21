@@ -1,4 +1,5 @@
 import pytest
+
 from subaru.sts.client.datum import Datum, DatumFormat
 
 
@@ -16,12 +17,12 @@ class TestDatumFormat:
 
     def test_datum_format_names(self):
         """Test that DatumFormat members have correct names."""
-        assert DatumFormat(0).name == 'INTEGER'
-        assert DatumFormat(1).name == 'FLOAT'
-        assert DatumFormat(2).name == 'TEXT'
-        assert DatumFormat(3).name == 'INTEGER_WITH_TEXT'
-        assert DatumFormat(4).name == 'FLOAT_WITH_TEXT'
-        assert DatumFormat(5).name == 'EXPONENT'
+        assert DatumFormat(0).name == "INTEGER"
+        assert DatumFormat(1).name == "FLOAT"
+        assert DatumFormat(2).name == "TEXT"
+        assert DatumFormat(3).name == "INTEGER_WITH_TEXT"
+        assert DatumFormat(4).name == "FLOAT_WITH_TEXT"
+        assert DatumFormat(5).name == "EXPONENT"
 
 
 class TestDatumBackwardCompatibility:
@@ -162,27 +163,37 @@ class TestDatumValidation:
 
     def test_integer_with_text_format_rejects_wrong_tuple_length(self):
         """Test INTEGER_WITH_TEXT format rejects tuples of wrong length."""
-        with pytest.raises(ValueError, match="INTEGER_WITH_TEXT format requires tuple of \\(int, str\\)"):
+        with pytest.raises(
+            ValueError, match="INTEGER_WITH_TEXT format requires tuple of \\(int, str\\)"
+        ):
             Datum(format=DatumFormat.INTEGER_WITH_TEXT, value=(42,))
 
     def test_integer_with_text_format_rejects_non_tuple(self):
         """Test INTEGER_WITH_TEXT format rejects non-tuple values."""
-        with pytest.raises(ValueError, match="INTEGER_WITH_TEXT format requires tuple of \\(int, str\\)"):
+        with pytest.raises(
+            ValueError, match="INTEGER_WITH_TEXT format requires tuple of \\(int, str\\)"
+        ):
             Datum(format=DatumFormat.INTEGER_WITH_TEXT, value=42)
 
     def test_integer_with_text_format_rejects_float_first_element(self):
         """Test INTEGER_WITH_TEXT format rejects float as first element."""
-        with pytest.raises(ValueError, match="INTEGER_WITH_TEXT format requires int as first element"):
+        with pytest.raises(
+            ValueError, match="INTEGER_WITH_TEXT format requires int as first element"
+        ):
             Datum(format=DatumFormat.INTEGER_WITH_TEXT, value=(3.14, "text"))
 
     def test_integer_with_text_format_rejects_bool_first_element(self):
         """Test INTEGER_WITH_TEXT format rejects bool as first element."""
-        with pytest.raises(ValueError, match="INTEGER_WITH_TEXT format requires int as first element"):
+        with pytest.raises(
+            ValueError, match="INTEGER_WITH_TEXT format requires int as first element"
+        ):
             Datum(format=DatumFormat.INTEGER_WITH_TEXT, value=(True, "text"))
 
     def test_integer_with_text_format_rejects_int_second_element(self):
         """Test INTEGER_WITH_TEXT format rejects int as second element."""
-        with pytest.raises(ValueError, match="INTEGER_WITH_TEXT format requires str as second element"):
+        with pytest.raises(
+            ValueError, match="INTEGER_WITH_TEXT format requires str as second element"
+        ):
             Datum(format=DatumFormat.INTEGER_WITH_TEXT, value=(42, 100))
 
     # FLOAT_WITH_TEXT format validation
@@ -198,27 +209,37 @@ class TestDatumValidation:
 
     def test_float_with_text_format_rejects_wrong_tuple_length(self):
         """Test FLOAT_WITH_TEXT format rejects tuples of wrong length."""
-        with pytest.raises(ValueError, match="FLOAT_WITH_TEXT format requires tuple of \\(float, str\\)"):
+        with pytest.raises(
+            ValueError, match="FLOAT_WITH_TEXT format requires tuple of \\(float, str\\)"
+        ):
             Datum(format=DatumFormat.FLOAT_WITH_TEXT, value=(3.14, "text", "extra"))
 
     def test_float_with_text_format_rejects_non_tuple(self):
         """Test FLOAT_WITH_TEXT format rejects non-tuple values."""
-        with pytest.raises(ValueError, match="FLOAT_WITH_TEXT format requires tuple of \\(float, str\\)"):
+        with pytest.raises(
+            ValueError, match="FLOAT_WITH_TEXT format requires tuple of \\(float, str\\)"
+        ):
             Datum(format=DatumFormat.FLOAT_WITH_TEXT, value="text")
 
     def test_float_with_text_format_rejects_string_first_element(self):
         """Test FLOAT_WITH_TEXT format rejects string as first element."""
-        with pytest.raises(ValueError, match="FLOAT_WITH_TEXT format requires numeric as first element"):
+        with pytest.raises(
+            ValueError, match="FLOAT_WITH_TEXT format requires numeric as first element"
+        ):
             Datum(format=DatumFormat.FLOAT_WITH_TEXT, value=("3.14", "text"))
 
     def test_float_with_text_format_rejects_bool_first_element(self):
         """Test FLOAT_WITH_TEXT format rejects bool as first element."""
-        with pytest.raises(ValueError, match="FLOAT_WITH_TEXT format requires numeric as first element"):
+        with pytest.raises(
+            ValueError, match="FLOAT_WITH_TEXT format requires numeric as first element"
+        ):
             Datum(format=DatumFormat.FLOAT_WITH_TEXT, value=(False, "text"))
 
     def test_float_with_text_format_rejects_int_second_element(self):
         """Test FLOAT_WITH_TEXT format rejects int as second element."""
-        with pytest.raises(ValueError, match="FLOAT_WITH_TEXT format requires str as second element"):
+        with pytest.raises(
+            ValueError, match="FLOAT_WITH_TEXT format requires str as second element"
+        ):
             Datum(format=DatumFormat.FLOAT_WITH_TEXT, value=(3.14, 42))
 
 
@@ -228,7 +249,10 @@ class TestDatumStringRepresentations:
     def test_repr_basic(self):
         """Test __repr__ method."""
         d = Datum(id=123, format=DatumFormat.INTEGER, timestamp=1234567890.5, value=42)
-        assert repr(d) == "Datum(id=123, format=<DatumFormat.INTEGER: 0>, timestamp=1234567890.5, value=42)"
+        assert (
+            repr(d)
+            == "Datum(id=123, format=<DatumFormat.INTEGER: 0>, timestamp=1234567890.5, value=42)"
+        )
 
     def test_repr_with_none_id(self):
         """Test __repr__ with None id."""
@@ -238,7 +262,9 @@ class TestDatumStringRepresentations:
     def test_repr_with_text(self):
         """Test __repr__ with text value."""
         d = Datum(id=456, format=DatumFormat.TEXT, timestamp=100.5, value="test")
-        assert repr(d) == "Datum(id=456, format=<DatumFormat.TEXT: 2>, timestamp=100.5, value='test')"
+        assert (
+            repr(d) == "Datum(id=456, format=<DatumFormat.TEXT: 2>, timestamp=100.5, value='test')"
+        )
 
     def test_str_integer(self):
         """Test __str__ method with INTEGER format."""
@@ -257,13 +283,23 @@ class TestDatumStringRepresentations:
 
     def test_str_integer_with_text(self):
         """Test __str__ method with INTEGER_WITH_TEXT format."""
-        d = Datum(id=111, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=300.0, value=(42, "units"))
-        assert str(d) == "Datum(id=111, format=INTEGER_WITH_TEXT, timestamp=300.0, value=(42, 'units'))"
+        d = Datum(
+            id=111, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=300.0, value=(42, "units")
+        )
+        assert (
+            str(d)
+            == "Datum(id=111, format=INTEGER_WITH_TEXT, timestamp=300.0, value=(42, 'units'))"
+        )
 
     def test_str_float_with_text(self):
         """Test __str__ method with FLOAT_WITH_TEXT format."""
-        d = Datum(id=222, format=DatumFormat.FLOAT_WITH_TEXT, timestamp=400.0, value=(3.14, "meters"))
-        assert str(d) == "Datum(id=222, format=FLOAT_WITH_TEXT, timestamp=400.0, value=(3.14, 'meters'))"
+        d = Datum(
+            id=222, format=DatumFormat.FLOAT_WITH_TEXT, timestamp=400.0, value=(3.14, "meters")
+        )
+        assert (
+            str(d)
+            == "Datum(id=222, format=FLOAT_WITH_TEXT, timestamp=400.0, value=(3.14, 'meters'))"
+        )
 
     def test_str_exponent(self):
         """Test __str__ method with EXPONENT format."""
@@ -312,14 +348,22 @@ class TestDatumEquality:
 
     def test_equality_with_tuple_values(self):
         """Test equality with tuple values."""
-        d1 = Datum(id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units"))
-        d2 = Datum(id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units"))
+        d1 = Datum(
+            id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units")
+        )
+        d2 = Datum(
+            id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units")
+        )
         assert d1 == d2
 
     def test_inequality_with_different_tuple_values(self):
         """Test inequality with different tuple values."""
-        d1 = Datum(id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units"))
-        d2 = Datum(id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "meters"))
+        d1 = Datum(
+            id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units")
+        )
+        d2 = Datum(
+            id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "meters")
+        )
         assert d1 != d2
 
     def test_equality_with_non_datum(self):
@@ -364,7 +408,9 @@ class TestDatumHash:
 
     def test_hash_with_tuple_value(self):
         """Test hashing with tuple values."""
-        d = Datum(id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units"))
+        d = Datum(
+            id=123, format=DatumFormat.INTEGER_WITH_TEXT, timestamp=1000.0, value=(42, "units")
+        )
         assert isinstance(hash(d), int)
 
 
@@ -417,7 +463,7 @@ class TestDatumFactoryMethods:
         assert d.id is None
         assert d.format == DatumFormat.TEXT
         assert d.timestamp == 0
-        assert d.value == ''
+        assert d.value == ""
 
     def test_integer_with_text_factory(self):
         """Test IntegerWithText factory method."""
@@ -433,7 +479,7 @@ class TestDatumFactoryMethods:
         assert d.id is None
         assert d.format == DatumFormat.INTEGER_WITH_TEXT
         assert d.timestamp == 0
-        assert d.value == (0, '')
+        assert d.value == (0, "")
 
     def test_float_with_text_factory(self):
         """Test FloatWithText factory method."""
@@ -449,7 +495,7 @@ class TestDatumFactoryMethods:
         assert d.id is None
         assert d.format == DatumFormat.FLOAT_WITH_TEXT
         assert d.timestamp == 0
-        assert d.value == (0.0, '')
+        assert d.value == (0.0, "")
 
     def test_exponent_factory(self):
         """Test Exponent factory method."""
@@ -529,12 +575,12 @@ class TestEdgeCases:
 
     def test_special_float_values(self):
         """Test datum with special float values."""
-        d_inf = Datum(format=DatumFormat.FLOAT, value=float('inf'))
-        assert d_inf.value == float('inf')
+        d_inf = Datum(format=DatumFormat.FLOAT, value=float("inf"))
+        assert d_inf.value == float("inf")
 
-        d_ninf = Datum(format=DatumFormat.FLOAT, value=float('-inf'))
-        assert d_ninf.value == float('-inf')
+        d_ninf = Datum(format=DatumFormat.FLOAT, value=float("-inf"))
+        assert d_ninf.value == float("-inf")
 
         # NaN is special - it's not equal to itself
-        d_nan = Datum(format=DatumFormat.FLOAT, value=float('nan'))
+        d_nan = Datum(format=DatumFormat.FLOAT, value=float("nan"))
         assert d_nan.value != d_nan.value  # NaN != NaN

@@ -9,6 +9,7 @@ description = "Small Python library for communicating with the Subaru Telescope 
 authors = [
     { name = "Subaru Telescope Instrument Division" },
 ]
+license = { file = "LICENSE" }
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.12"
 keywords = ["Subaru", "telescope", "STS", "radio"]
@@ -47,11 +48,13 @@ features = ["dev"]
 python = ["3.12", "3.13"]
 
 [project.urls]
-Homepage = "https://github.com/Subaru-InstDiv/STSpy"
-Repository = "https://github.com/Subaru-InstDiv/STSpy.git"
+Homepage = "https://github.com/Subaru-InstDiv/subaru-sts-client"
+Repository = "https://github.com/Subaru-InstDiv/subaru-sts-client.git"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest"
+# Run only offline/unit tests
+test-offline = "pytest -k 'not transmit_method and not receive_method'"
 # Format code with ruff
 format = "ruff format"
 # Check formatting without making changes
@@ -64,13 +67,12 @@ lint-fix = "ruff check --fix"
 check = ["lint", "format-check"]
 
 # If using Hatch to build, these targets help define package contents.
-# They are ignored by setuptools but recognized by hatchling if you later switch backends.
+# They are ignored by setuptools but kept here for potential future migration to hatchling.
 [tool.hatch.build.targets.sdist]
-include = ["src", "README.md", "pyproject.toml", "tests"]
+include = ["src", "README.md", "pyproject.toml", "tests", "LICENSE"]
 
 [tool.hatch.build.targets.wheel]
-# Specify top-level package names when using hatchling
-packages = ["subaru"]
+packages = ["src/subaru"]
 
 [tool.setuptools_scm]
 # Enable automatic versioning from Git tags/commits.
@@ -90,36 +92,36 @@ indent-style = "space"
 [tool.ruff.lint]
 # Enable pycodestyle (E, W), pyflakes (F), isort (I), numpy docstring (D), and other useful rules
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "D",    # pydocstyle
-    "UP",   # pyupgrade
-    "N",    # pep8-naming
-    "B",    # flake8-bugbear
-    "A",    # flake8-builtins
-    "C4",   # flake8-comprehensions
-    "DTZ",  # flake8-datetimez
-    "EM",   # flake8-errmsg
-    "ISC",  # flake8-implicit-str-concat
-    "ICN",  # flake8-import-conventions
-    "PIE",  # flake8-pie
-    "T20",  # flake8-print
-    "PT",   # flake8-pytest-style
-    "Q",    # flake8-quotes
-    "RSE",  # flake8-raise
-    "RET",  # flake8-return
-    "SIM",  # flake8-simplify
-    "TID",  # flake8-tidy-imports
-    "ARG",  # flake8-unused-arguments
-    "PTH",  # flake8-use-pathlib
-    "ERA",  # eradicate
-    "PL",   # pylint
-    "TRY",  # tryceratops
-    "RUF",  # ruff-specific rules
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "D", # pydocstyle
+    "UP", # pyupgrade
+    "N", # pep8-naming
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "EM", # flake8-errmsg
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PT", # flake8-pytest-style
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PL", # pylint
+    "TRY", # tryceratops
+    "RUF", # ruff-specific rules
 ]
-ignore = ["EM101", "EM102", "TRY003", "UP038"]
+ignore = ["EM101", "EM102", "TRY003"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore certain rules in test files
@@ -133,13 +135,11 @@ convention = "numpy"
 known-first-party = ["subaru"]
 
 [tool.pytest.ini_options]
-# Pytest configuration for coverage
+# Pytest configuration
 testpaths = ["tests"]
 addopts = [
     "-v",
     "--cov=subaru",
-    "--cov-report=xml",
-    "--cov-report=term-missing",
 ]
 
 [tool.coverage.run]

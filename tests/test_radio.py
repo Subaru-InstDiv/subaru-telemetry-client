@@ -1,9 +1,10 @@
 import socket
 import struct
 import time
-from unittest.mock import MagicMock, Mock, patch, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
+
 from subaru.sts.client import Datum, Radio
 
 
@@ -11,7 +12,7 @@ from subaru.sts.client import Datum, Radio
 def sample_data():
     """Create a list of STS data that can be written to STS for testing."""
     # Long text data (62*3 bytes)
-    text = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' * 3
+    text = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" * 3
     timestamp = int(time.time())
     return [
         Datum.Integer(id=1090, timestamp=timestamp, value=1),
@@ -35,41 +36,41 @@ class TestRadioInit:
     def test_default_constructor(self):
         """Test the default constructor of the Radio class."""
         radio = Radio()
-        assert radio.host == 'sts'
+        assert radio.host == "sts"
         assert radio.port == 9001
         assert radio.timeout == 5.0
 
     def test_constructor_with_custom_host(self):
         """Test constructor with custom host."""
-        radio = Radio(host='localhost')
-        assert radio.host == 'localhost'
+        radio = Radio(host="localhost")
+        assert radio.host == "localhost"
         assert radio.port == 9001
         assert radio.timeout == 5.0
 
     def test_constructor_with_custom_port(self):
         """Test constructor with custom port."""
         radio = Radio(port=8080)
-        assert radio.host == 'sts'
+        assert radio.host == "sts"
         assert radio.port == 8080
         assert radio.timeout == 5.0
 
     def test_constructor_with_custom_timeout(self):
         """Test constructor with custom timeout."""
         radio = Radio(timeout=10.0)
-        assert radio.host == 'sts'
+        assert radio.host == "sts"
         assert radio.port == 9001
         assert radio.timeout == 10.0
 
     def test_constructor_with_all_params(self):
         """Test constructor with all custom parameters."""
-        radio = Radio(host='192.168.1.1', port=8080, timeout=10.0)
-        assert radio.host == '192.168.1.1'
+        radio = Radio(host="192.168.1.1", port=8080, timeout=10.0)
+        assert radio.host == "192.168.1.1"
         assert radio.port == 8080
         assert radio.timeout == 10.0
 
     def test_repr(self):
         """Test __repr__ method."""
-        radio = Radio(host='testhost', port=1234, timeout=2.5)
+        radio = Radio(host="testhost", port=1234, timeout=2.5)
         expected = "Radio(host='testhost', port=1234, timeout=2.5)"
         assert repr(radio) == expected
 
@@ -203,7 +204,7 @@ class TestRadioPack:
         datum.format = 6
         datum.timestamp = 0
         datum.value = 0
-        with pytest.raises(RuntimeError, match='Invalid data type'):
+        with pytest.raises(RuntimeError, match="Invalid data type"):
             Radio.pack(datum)
 
     def test_pack_header_has_flag_set(self):
@@ -324,7 +325,7 @@ class TestRadioUnpack:
         # Modify the size byte to create an invalid packet
         packet[0:1] = bytes([18 | 0x80])
 
-        with pytest.raises(RuntimeError, match='Invalid packet size'):
+        with pytest.raises(RuntimeError, match="Invalid packet size"):
             Radio.unpack(packet)
 
     def test_unpack_invalid_data_type(self):
@@ -333,7 +334,7 @@ class TestRadioUnpack:
         # Modify the format byte to an invalid value
         packet[5:6] = bytes([6])
 
-        with pytest.raises(RuntimeError, match='Invalid data type'):
+        with pytest.raises(RuntimeError, match="Invalid data type"):
             Radio.unpack(packet)
 
     def test_unpack_invalid_header_flag(self):
@@ -342,7 +343,7 @@ class TestRadioUnpack:
         # Clear the 0x80 flag
         packet[0] = packet[0] & 0x7F
 
-        with pytest.raises(RuntimeError, match='Invalid packet header'):
+        with pytest.raises(RuntimeError, match="Invalid packet header"):
             Radio.unpack(packet)
 
     def test_unpack_negative_integer(self):
@@ -388,7 +389,7 @@ class TestRadioRoundTrip:
             elif datum.format == Datum.TEXT:
                 # TEXT may be truncated due to maximum packet size (127 bytes)
                 # Header is 10 bytes, so max text is 117 bytes
-                expected_value = datum.value[:Radio._MAXIMUM_PACKET_SIZE - Radio._HEADER_SIZE]
+                expected_value = datum.value[: Radio._MAXIMUM_PACKET_SIZE - Radio._HEADER_SIZE]
                 assert unpacked.value == expected_value
             elif datum.format == Datum.INTEGER_WITH_TEXT:
                 # INTEGER_WITH_TEXT may have truncated text
@@ -427,14 +428,14 @@ class TestRadioRoundTrip:
 class TestRadioTransmit:
     """Tests for Radio.transmit() method."""
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_success(self, mock_socket_class, sample_data):
         """Test successful transmit operation."""
         # Setup mock socket
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.side_effect = ['OK: Write On\n', 'OK: Write Off\n']
+        mock_file.readline.side_effect = ["OK: Write On\n", "OK: Write Off\n"]
         mock_socket.makefile.return_value = mock_file
 
         # Perform transmit
@@ -444,25 +445,28 @@ class TestRadioTransmit:
         # Verify socket operations
         mock_socket_class.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM)
         mock_socket.settimeout.assert_called_once_with(5.0)
-        mock_socket.connect.assert_called_once_with(('sts', 9001))
+        mock_socket.connect.assert_called_once_with(("sts", 9001))
 
         # Verify commands sent
         calls = mock_socket.sendall.call_args_list
-        assert calls[0] == call(b'W\n')  # Enter write mode
+        assert calls[0] == call(b"W\n")  # Enter write mode
         # Then 6 data packets
-        assert len([c for c in calls if c != call(b'W\n') and c != call(b'\n') and c != call(b'Q\n')]) == 6
-        assert call(b'\n') in calls  # Exit write mode
-        assert call(b'Q\n') in calls  # Quit command
+        assert (
+            len([c for c in calls if c != call(b"W\n") and c != call(b"\n") and c != call(b"Q\n")])
+            == 6
+        )
+        assert call(b"\n") in calls  # Exit write mode
+        assert call(b"Q\n") in calls  # Quit command
 
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_with_custom_timeout(self, mock_socket_class):
         """Test transmit with custom timeout."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.side_effect = ['OK: Write On\n', 'OK: Write Off\n']
+        mock_file.readline.side_effect = ["OK: Write On\n", "OK: Write Off\n"]
         mock_socket.makefile.return_value = mock_file
 
         radio = Radio(timeout=10.0)
@@ -470,27 +474,27 @@ class TestRadioTransmit:
 
         mock_socket.settimeout.assert_called_once_with(10.0)
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_invalid_response(self, mock_socket_class):
         """Test transmit with invalid server response."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'ERROR: Invalid\n'
+        mock_file.readline.return_value = "ERROR: Invalid\n"
         mock_socket.makefile.return_value = mock_file
 
         radio = Radio()
-        with pytest.raises(RuntimeError, match='Invalid response'):
+        with pytest.raises(RuntimeError, match="Invalid response"):
             radio.transmit([Datum.Integer(id=1, timestamp=1000, value=1)])
 
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_connection_error(self, mock_socket_class):
         """Test transmit handles connection errors."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
-        mock_socket.connect.side_effect = socket.error("Connection refused")
+        mock_socket.connect.side_effect = OSError("Connection refused")
 
         radio = Radio()
         with pytest.raises(socket.error):
@@ -498,13 +502,13 @@ class TestRadioTransmit:
 
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_empty_list(self, mock_socket_class):
         """Test transmit with empty data list."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.side_effect = ['OK: Write On\n', 'OK: Write Off\n']
+        mock_file.readline.side_effect = ["OK: Write On\n", "OK: Write Off\n"]
         mock_socket.makefile.return_value = mock_file
 
         radio = Radio()
@@ -512,15 +516,15 @@ class TestRadioTransmit:
 
         # Should still go through write mode cycle
         calls = mock_socket.sendall.call_args_list
-        assert call(b'W\n') in calls
-        assert call(b'\n') in calls
-        assert call(b'Q\n') in calls
+        assert call(b"W\n") in calls
+        assert call(b"\n") in calls
+        assert call(b"Q\n") in calls
 
 
 class TestRadioReceive:
     """Tests for Radio.receive() method."""
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_success(self, mock_socket_class, sample_ids):
         """Test successful receive operation."""
         mock_socket = MagicMock()
@@ -528,7 +532,7 @@ class TestRadioReceive:
 
         # Setup readline mock
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'OK: Read On\n'
+        mock_file.readline.return_value = "OK: Read On\n"
         mock_socket.makefile.return_value = mock_file
 
         # Create sample packets to return
@@ -542,7 +546,7 @@ class TestRadioReceive:
         ]
 
         # Mock _recv_packet to return our sample packets
-        with patch.object(Radio, '_recv_packet', side_effect=sample_packets):
+        with patch.object(Radio, "_recv_packet", side_effect=sample_packets):
             radio = Radio()
             data = radio.receive(sample_ids)
 
@@ -554,36 +558,36 @@ class TestRadioReceive:
 
         # Verify socket operations
         mock_socket.settimeout.assert_called_once_with(5.0)
-        mock_socket.connect.assert_called_once_with(('sts', 9001))
+        mock_socket.connect.assert_called_once_with(("sts", 9001))
 
         # Verify read mode entered
         calls = mock_socket.sendall.call_args_list
-        assert calls[0] == call(b'R\n')
+        assert calls[0] == call(b"R\n")
 
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_invalid_response(self, mock_socket_class):
         """Test receive with invalid server response."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'ERROR: Invalid\n'
+        mock_file.readline.return_value = "ERROR: Invalid\n"
         mock_socket.makefile.return_value = mock_file
 
         radio = Radio()
-        with pytest.raises(RuntimeError, match='Invalid response'):
+        with pytest.raises(RuntimeError, match="Invalid response"):
             radio.receive([1, 2, 3])
 
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_empty_id_list(self, mock_socket_class):
         """Test receive with empty ID list."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'OK: Read On\n'
+        mock_file.readline.return_value = "OK: Read On\n"
         mock_socket.makefile.return_value = mock_file
 
         radio = Radio()
@@ -592,39 +596,43 @@ class TestRadioReceive:
         assert data == []
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_with_custom_host_port(self, mock_socket_class):
         """Test receive with custom host and port."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'OK: Read On\n'
+        mock_file.readline.return_value = "OK: Read On\n"
         mock_socket.makefile.return_value = mock_file
 
-        radio = Radio(host='192.168.1.100', port=8080)
-        with patch.object(Radio, '_recv_packet', return_value=Radio.pack(Datum.Integer(id=1, timestamp=1, value=1))):
+        radio = Radio(host="192.168.1.100", port=8080)
+        with patch.object(
+            Radio,
+            "_recv_packet",
+            return_value=Radio.pack(Datum.Integer(id=1, timestamp=1, value=1)),
+        ):
             radio.receive([1])
 
-        mock_socket.connect.assert_called_once_with(('192.168.1.100', 8080))
+        mock_socket.connect.assert_called_once_with(("192.168.1.100", 8080))
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_sends_terminator(self, mock_socket_class):
         """Test that receive sends -1 as terminator."""
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
         mock_file = MagicMock()
-        mock_file.readline.return_value = 'OK: Read On\n'
+        mock_file.readline.return_value = "OK: Read On\n"
         mock_socket.makefile.return_value = mock_file
 
         sample_packet = Radio.pack(Datum.Integer(id=1, timestamp=1000, value=42))
 
-        with patch.object(Radio, '_recv_packet', return_value=sample_packet):
+        with patch.object(Radio, "_recv_packet", return_value=sample_packet):
             radio = Radio()
             radio.receive([1])
 
         # Find the call with -1 terminator
         calls = mock_socket.sendall.call_args_list
-        terminator_call = [c for c in calls if c[0][0] == struct.pack('!i', -1)]
+        terminator_call = [c for c in calls if c[0][0] == struct.pack("!i", -1)]
         assert len(terminator_call) == 1
 
 
@@ -644,13 +652,12 @@ class TestRadioRecvPacket:
         def mock_recv(size, flags=0):
             if flags == socket.MSG_PEEK:
                 return expected_packet[:size]
-            else:
-                return expected_packet[:size]
+            return expected_packet[:size]
 
         mock_socket.recv.side_effect = mock_recv
 
         # Mock _recvn to return the full packet
-        with patch.object(Radio, '_recvn') as mock_recvn:
+        with patch.object(Radio, "_recvn") as mock_recvn:
             mock_recvn.side_effect = [expected_packet[:1], expected_packet]
 
             result = Radio._recv_packet(mock_socket)
@@ -667,7 +674,7 @@ class TestRadioRecvn:
     def test_recvn_single_chunk(self):
         """Test _recvn when data arrives in a single chunk."""
         mock_socket = MagicMock()
-        data = b'Hello World'
+        data = b"Hello World"
         mock_socket.recv.return_value = data
 
         result = Radio._recvn(mock_socket, len(data))
@@ -678,9 +685,9 @@ class TestRadioRecvn:
     def test_recvn_multiple_chunks(self):
         """Test _recvn when data arrives in multiple chunks."""
         mock_socket = MagicMock()
-        data = b'Hello World'
+        data = b"Hello World"
         # Return data in 3 chunks
-        mock_socket.recv.side_effect = [b'Hello', b' Wor', b'ld']
+        mock_socket.recv.side_effect = [b"Hello", b" Wor", b"ld"]
 
         result = Radio._recvn(mock_socket, len(data))
 
@@ -690,15 +697,15 @@ class TestRadioRecvn:
     def test_recvn_connection_closed(self):
         """Test _recvn raises error when connection is closed."""
         mock_socket = MagicMock()
-        mock_socket.recv.return_value = b''  # Empty bytes indicates closed connection
+        mock_socket.recv.return_value = b""  # Empty bytes indicates closed connection
 
-        with pytest.raises(RuntimeError, match='Connection closed by peer'):
+        with pytest.raises(RuntimeError, match="Connection closed by peer"):
             Radio._recvn(mock_socket, 100)
 
     def test_recvn_with_msg_peek_flag(self):
         """Test _recvn with MSG_PEEK flag."""
         mock_socket = MagicMock()
-        data = b'Test'
+        data = b"Test"
         mock_socket.recv.return_value = data
 
         result = Radio._recvn(mock_socket, len(data), socket.MSG_PEEK)
@@ -710,11 +717,11 @@ class TestRadioRecvn:
         """Test _recvn with partial data followed by complete data."""
         mock_socket = MagicMock()
         # First recv gets partial data, second completes it
-        mock_socket.recv.side_effect = [b'Par', b'tial']
+        mock_socket.recv.side_effect = [b"Par", b"tial"]
 
         result = Radio._recvn(mock_socket, 7)
 
-        assert result == bytearray(b'Partial')
+        assert result == bytearray(b"Partial")
         assert mock_socket.recv.call_count == 2
 
 
@@ -723,7 +730,7 @@ class TestRadioConstants:
 
     def test_default_constants(self):
         """Test that class constants have expected values."""
-        assert Radio.HOST == 'sts'
+        assert Radio.HOST == "sts"
         assert Radio.PORT == 9001
         assert Radio.TIMEOUT == 5.0
 
@@ -767,30 +774,30 @@ class TestRadioEdgeCases:
 
     def test_pack_special_float_infinity(self):
         """Test packing positive infinity."""
-        original = Datum.Float(id=1, timestamp=1000, value=float('inf'))
+        original = Datum.Float(id=1, timestamp=1000, value=float("inf"))
         packet = Radio.pack(original)
         unpacked = Radio.unpack(packet)
 
-        assert unpacked.value == float('inf')
+        assert unpacked.value == float("inf")
 
     def test_pack_special_float_negative_infinity(self):
         """Test packing negative infinity."""
-        original = Datum.Float(id=1, timestamp=1000, value=float('-inf'))
+        original = Datum.Float(id=1, timestamp=1000, value=float("-inf"))
         packet = Radio.pack(original)
         unpacked = Radio.unpack(packet)
 
-        assert unpacked.value == float('-inf')
+        assert unpacked.value == float("-inf")
 
     def test_pack_special_float_nan(self):
         """Test packing NaN."""
-        original = Datum.Float(id=1, timestamp=1000, value=float('nan'))
+        original = Datum.Float(id=1, timestamp=1000, value=float("nan"))
         packet = Radio.pack(original)
         unpacked = Radio.unpack(packet)
 
         # NaN is not equal to itself
         assert unpacked.value != unpacked.value
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_transmit_socket_closed_on_exception(self, mock_socket_class):
         """Test that socket is closed even when exception occurs."""
         mock_socket = MagicMock()
@@ -804,7 +811,7 @@ class TestRadioEdgeCases:
         # Socket should still be closed
         mock_socket.close.assert_called_once()
 
-    @patch('socket.socket')
+    @patch("socket.socket")
     def test_receive_socket_closed_on_exception(self, mock_socket_class):
         """Test that socket is closed even when exception occurs in receive."""
         mock_socket = MagicMock()
