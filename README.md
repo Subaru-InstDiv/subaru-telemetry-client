@@ -52,6 +52,8 @@ d6 = Datum.Exponent(id=1095, timestamp=now, value=1.0)
 # Create a radio to broadcast/receive data.
 radio = Radio() 
 radio.transmit([d1, d2, d3, d4, d5, d6])
+
+# Get the lastest values by id.
 latest = radio.receive([1090, 1091, 1092, 1093, 1094, 1095])
 print(latest)
 ```
