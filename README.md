@@ -1,11 +1,11 @@
 # STSpy
 
-[![Tests](https://github.com/Subaru-InstDiv/sts-client/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Subaru-InstDiv/sts-client/actions/workflows/python-tests.yml)
-[![codecov](https://codecov.io/gh/Subaru-InstDiv/STSpy/branch/main/graph/badge.svg)](https://codecov.io/gh/Subaru-InstDiv/STSpy)
+[![Tests](https://github.com/Subaru-InstDiv/subaru-sts-client/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Subaru-InstDiv/sts-client/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/Subaru-InstDiv/subaru-sts-client/branch/main/graph/badge.svg)](https://codecov.io/gh/Subaru-InstDiv/subaru-sts-client)
 
 ## Overview
 
-- STSpy is a small Python library for communicating with the Subaru Telescope STS board ("STS radio").
+- `subaru-sts-client` is a small Python library for communicating with the Subaru Telescope STS board ("STS radio").
 - It provides two core classes:
     - `subaru.sts.client.dataum.Datum`: a lightweight container representing typed values (integer, float, text,
       integer-with-text, float-with-text, exponent) with an STS radio ID and timestamp.
