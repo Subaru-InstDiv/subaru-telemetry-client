@@ -20,14 +20,26 @@
 
 ## Installation
 
-Package name (when published): `subaru-sts-client`.
+This is an internal library. Install directly from the repository using `git+ssh`. By default, you should use the latest version:
 
-- Install from source (in this repository's root):
-    - `python -m pip install .`
-- Editable/development install:
-    - `python -m pip install -e .`
-- Development install with dev tools:
-    - `python -m pip install -e ".[dev]"`
+- **Standard Installation:**
+  ```bash
+  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-sts-client.git"
+  ```
+
+- **Specifying a Version (Optional):**
+  If you need to pin to a specific version, you can append a tag (e.g., `@v1.0.0`):
+  ```bash
+  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-sts-client.git@v1.0.0"
+  ```
+
+- **For Development (editable):**
+  Clone the repository and install in editable mode:
+  ```bash
+  git clone git@github.com:Subaru-InstDiv/subaru-sts-client.git
+  cd subaru-sts-client
+  uv sync --extra dev
+  ```
 
 ## Usage
 
