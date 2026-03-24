@@ -844,22 +844,6 @@ class TestRadioDryRun:
         mock_socket_class.assert_not_called()
 
     @patch("socket.socket")
-    def test_receive_dry_run_class_level(self, mock_socket_class, sample_ids):
-        """Test receive with dry_run enabled at class level."""
-        radio = Radio(dry_run=True)
-        data = radio.receive(sample_ids)
-        assert data == []
-        mock_socket_class.assert_not_called()
-
-    @patch("socket.socket")
-    def test_receive_dry_run_method_override(self, mock_socket_class, sample_ids):
-        """Test receive with dry_run enabled via method override."""
-        radio = Radio(dry_run=False)
-        data = radio.receive(sample_ids, dry_run=True)
-        assert data == []
-        mock_socket_class.assert_not_called()
-
-    @patch("socket.socket")
     def test_transmit_dry_run_invalid_data(self, mock_socket_class):
         """Test transmit with dry_run still validates data."""
         radio = Radio(dry_run=True)

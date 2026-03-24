@@ -73,20 +73,15 @@ class Radio:
         finally:
             sock.close()
 
-    def receive(self, ids, dry_run=None):
+    def receive(self, ids):
         """Retrieve latest STS data from the STS board.
 
         Argument
             ids: Sequence of STS radio IDs
-            dry_run: Optional override to skip network operations
 
         Result
             List of Datum objects
         """
-        is_dry_run = dry_run if dry_run is not None else self.dry_run
-        if is_dry_run:
-            return []
-
         data = []
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:

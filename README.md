@@ -67,9 +67,8 @@ print(latest)
     - DRY_RUN: `False`
 - You can override these via the constructor:
     - `Radio(host='example.org', port=9001, timeout=2.0, dry_run=True)`
-- You can also override `dry_run` for individual calls:
+- You can also override `dry_run` for individual transmit calls:
     - `radio.transmit(data, dry_run=True)`
-    - `radio.receive(ids, dry_run=True)`
 
 ## Tests
 
