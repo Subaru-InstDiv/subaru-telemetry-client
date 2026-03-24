@@ -37,42 +37,9 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# Hatch configuration: environments and optional build targets
-[tool.hatch.envs.default]
-features = ["dev"]
-
-[tool.hatch.envs.hatch-test]
-features = ["dev"]
-
-[[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.12", "3.13"]
-
 [project.urls]
 Homepage = "https://github.com/Subaru-InstDiv/subaru-sts-client"
 Repository = "https://github.com/Subaru-InstDiv/subaru-sts-client.git"
-
-[tool.hatch.envs.default.scripts]
-test = "pytest"
-# Run only offline/unit tests
-test-offline = "pytest -k 'not transmit_method and not receive_method'"
-# Format code with ruff
-format = "ruff format"
-# Check formatting without making changes
-format-check = "ruff format --check"
-# Lint code with ruff
-lint = "ruff check"
-# Lint and fix auto-fixable issues
-lint-fix = "ruff check --fix"
-# Run all quality checks (linting + format check)
-check = ["lint", "format-check"]
-
-# If using Hatch to build, these targets help define package contents.
-# They are ignored by setuptools but kept here for potential future migration to hatchling.
-[tool.hatch.build.targets.sdist]
-include = ["src", "README.md", "pyproject.toml", "tests", "LICENSE"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/subaru"]
 
 [tool.setuptools_scm]
 # Enable automatic versioning from Git tags/commits.

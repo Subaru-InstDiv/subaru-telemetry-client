@@ -76,45 +76,30 @@ print(latest)
 ### Run tests
 
 - Run all tests (may attempt network access):
-    - pytest -v
-    - or: python -m pytest -v
+    - `uv run pytest -v`
 - Run only offline/unit tests (examples):
-    - pytest -v -k 'not transmit_method and not receive_method'
-- If you use Hatch, equivalent scripts are defined:
-    - hatch run test
-    - hatch run test-offline
+    - `uv run pytest -v -k 'not transmit_method and not receive_method'`
 
 ### Code quality and formatting
 
-- This project uses ruff for both linting and code formatting.
-- Ruff configuration is defined in pyproject.toml and follows:
+- This project uses `ruff` for both linting and code formatting.
+- Ruff configuration is defined in `pyproject.toml` and follows:
     - Line length: 100 characters
     - Target: Python 3.12
     - Docstring convention: numpy
 
-#### Hatch commands for code quality:
+#### Code quality commands with UV:
 
 - Format code:
-    - hatch run format
+    - `uv run ruff format .`
 - Check formatting without changes:
-    - hatch run format-check
+    - `uv run ruff format --check .`
 - Lint code:
-    - hatch run lint
+    - `uv run ruff check .`
 - Lint and auto-fix issues:
-    - hatch run lint-fix
+    - `uv run ruff check --fix .`
 - Run all quality checks (lint + format check):
-    - hatch run check
-
-#### Manual ruff commands (if not using Hatch):
-
-- Format code:
-    - ruff format .
-- Check formatting:
-    - ruff format --check .
-- Lint code:
-    - ruff check .
-- Lint and auto-fix:
-    - ruff check --fix .
+    - `uv run ruff check . && uv run ruff format --check .`
 
 - If you wish to run integration tests that hit the live STS server, ensure network connectivity and that the HOST/PORT
   are correct or pass custom values when constructing Radio in your own tests.
