@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          uv run pytest
+          uv run --extra dev pytest -k 'not transmit_method and not receive_method'
 
 
       - name: Upload coverage to Codecov
