@@ -1,12 +1,12 @@
 # STSpy
 
-[![Tests](https://github.com/Subaru-InstDiv/subaru-sts-client/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Subaru-InstDiv/subaru-sts-client/actions/workflows/python-tests.yml)
-[![codecov](https://codecov.io/gh/Subaru-InstDiv/subaru-sts-client/branch/main/graph/badge.svg)](https://codecov.io/gh/Subaru-InstDiv/subaru-sts-client)
+[![Tests](https://github.com/Subaru-InstDiv/subaru-telemetry-client/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Subaru-InstDiv/subaru-telemetry-client/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/Subaru-InstDiv/subaru-telemetry-client/branch/main/graph/badge.svg)](https://codecov.io/gh/Subaru-InstDiv/subaru-telemetry-client)
 
 
 ## Overview
 
-- `subaru-sts-client` is a small Python library for communicating with the Subaru Telescope STS board ("STS radio").
+- `subaru-telemetry-client` is a small Python library for communicating with the Subaru Telescope STS board ("STS radio").
 - It provides two core classes:
     - `subaru.sts.client.dataum.Datum`: a lightweight container representing typed values (integer, float, text,
       integer-with-text, float-with-text, exponent) with an STS radio ID and timestamp.
@@ -25,20 +25,20 @@ This is an internal library. Install directly from the repository using `git+ssh
 
 - **Standard Installation:**
   ```bash
-  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-sts-client.git"
+  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-telemetry-client.git"
   ```
 
 - **Specifying a Version (Optional):**
   If you need to pin to a specific version, you can append a tag (e.g., `@v1.0.0`):
   ```bash
-  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-sts-client.git@v1.0.0"
+  pip install "git+ssh://git@github.com/Subaru-InstDiv/subaru-telemetry-client.git@v1.0.0"
   ```
 
 - **For Development (editable):**
   Clone the repository and install in editable mode:
   ```bash
-  git clone git@github.com:Subaru-InstDiv/subaru-sts-client.git
-  cd subaru-sts-client
+  git clone git@github.com:Subaru-InstDiv/subaru-telemetry-client.git
+  cd subaru-telemetry-client
   uv sync --extra dev
   ```
 
