@@ -80,7 +80,7 @@ Keep the ticket updated with any blockers or scope changes via comments.
 - Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
 - Opening a PR does **not** automatically mean the work is ready for review — further
   commits are expected.
-- Only transition the ticket to **Pending** when explicitly asked to request a
+- Only transition the ticket to **In Review** when explicitly asked to request a
   review (e.g. "request a review", "mark for review", "this is ready for review").
   If no review was requested, the ticket should remain **In Progress** until merge.
 
@@ -216,6 +216,14 @@ If the STS board protocol is extended to support a new format:
 - **Project Key:** STS
 - **Project ID:** 10099
 - **Default Issue Type:** Task (ID: 10007)
+
+### Workflow Transition IDs
+| ID | Transition | Result State |
+|----|-----------|-------------|
+| `11` | To Do | To Do |
+| `21` | In Progress | In Progress |
+| `31` | In Review | In Review |
+| `41` | Done | Done |
 
 ## Creating Jira Issues
 
