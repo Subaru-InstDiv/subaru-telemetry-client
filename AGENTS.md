@@ -219,9 +219,26 @@ Available components: `Intranet`, `Jira`, `Public website`
 - Do NOT use JSM request types (IDs 10067, 10068, 10069) — those are for the
   customer portal only.
 
+## Agent Attribution
+
+Whenever you create or edit a Jira issue, comment, or any Atlassian content, append a
+footer identifying the tool and model that performed the action:
+
+```
+---
+*Edited by [tool-name] ([model-name]) on behalf of @[github-username]*
+```
+
+Example:
+```
+---
+*Edited by GitHub Copilot CLI (claude-sonnet-4.6) on behalf of @wtgee*
+```
+
 ## MCP Server Setup
 
-If a user asks how to set up the Atlassian MCP server, provide these instructions:
+Atlassian hosts the MCP server remotely — no local installation, Docker, or container needed.
+The default and recommended approach is to connect directly to the Atlassian-hosted server.
 
 ### 1. Create an API Token
 1. Go to https://id.atlassian.com/manage-profile/security/api-tokens
@@ -230,20 +247,42 @@ If a user asks how to set up the Atlassian MCP server, provide these instruction
 Note: API tokens inherit your full account permissions. For least-privilege access,
 use OAuth 2.0 with scopes: `read:jira-work`, `write:jira-work`, `read:jira-user`.
 
-### 2. Configure MCP in Your Editor
+### 2. Create Your Basic Auth Credential
 
-**VS Code / GitHub Copilot** — add to your MCP settings (`.vscode/mcp.json` or user settings):
+```bash
+echo -n "your-email@example.com:your-api-token" | base64
+```
+
+### 3. Configure Your MCP Client
+
+**GitHub Copilot CLI** — add to `~/.copilot/mcp-config.json`:
 ```json
 {
   "mcpServers": {
     "atlassian": {
-      "command": "npx",
-      "args": ["-y", "@atlassian/mcp-server"],
-      "env": {
-        "ATLASSIAN_SITE": "subaru-naoj.atlassian.net",
-        "ATLASSIAN_USER_EMAIL": "<your-atlassian-email>",
-        "ATLASSIAN_API_TOKEN": "<your-api-token>"
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "headers": {
+        "Authorization": "Basic <your-base64-credential>"
       }
+    }
+  }
+}
+```
+
+**VS Code / GitHub Copilot Chat** — add to `.vscode/mcp.json` or user MCP settings:
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "type": "local",
+      "command": "npx",
+      "args": [
+        "mcp-remote@latest",
+        "https://mcp.atlassian.com/v1/mcp",
+        "--header",
+        "Authorization: Basic <your-base64-credential>"
+      ]
     }
   }
 }
