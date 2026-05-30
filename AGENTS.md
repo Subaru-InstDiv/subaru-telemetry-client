@@ -29,40 +29,68 @@ Coverage must stay at or above **80 %**. The CI gate will fail below this thresh
 
 ---
 
-## Git workflow
+## Development Workflow
+
+Follow this workflow for all non-trivial changes (bug fixes, features, refactors):
+
+### 1. Before Starting Work
+- **Find or create a Jira ticket.** Search STS for an existing ticket that covers your
+  task. If none exists, create one (Task type, project STS) with a clear summary and
+  description of the work.
+- Assign the ticket to yourself if unassigned.
+- Transition the ticket to **In Progress**.
+
+### 2. Creating a Branch
 
 **Never commit directly to `main`.** All changes must go through a feature branch and pull request.
 
 ```sh
 git checkout main && git pull          # start from a fresh main
-git checkout -b <type>/<description>   # create a feature branch
+git checkout -b <branch-name>          # create a feature branch
 # ... make changes ...
 git push -u origin <branch-name>
 gh pr create --base main
 ```
 
-Branch names follow `<type>/<short-description>` in lowercase kebab-case:
+Name branches using the ticket key and a type prefix in lowercase kebab-case:
 
-| Type | When to use |
+| Type | Example branch |
 |---|---|
-| `feat/` | new public API, new datum format support |
-| `fix/` | bug fix |
-| `chore/` | dependency updates, config changes |
-| `docs/` | README or documentation only |
-| `refactor/` | internal restructuring with no behaviour change |
-| `test/` | adding or improving tests |
+| `feat/` | `feat/STS-7-add-datum-batch-helper` |
+| `fix/` | `fix/STS-42-radio-recv-timeout` |
+| `chore/` | `chore/STS-12-bump-ruff` |
+| `docs/` | `docs/STS-5-update-readme` |
+| `refactor/` | `refactor/STS-9-simplify-pack` |
+| `test/` | `test/STS-3-add-roundtrip-tests` |
 
-Examples: `feat/add-datum-batch-helper`, `fix/radio-recv-timeout`, `chore/bump-ruff`
+### 3. While Working
 
-### Commit message format
+Reference the ticket key in every commit message:
 
 ```
-feat: add FloatArray datum format
-fix: handle partial recv in _recvn
-chore: upgrade ruff to 0.9.0
+STS-42 feat: add FloatArray datum format
+STS-42 fix: handle partial recv in _recvn
 ```
 
 Keep the subject line under 72 characters. Add a blank line and body if the change is non-obvious.
+Keep the ticket updated with any blockers or scope changes via comments.
+
+### 4. Opening a Pull Request
+- Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
+- Opening a PR does **not** automatically mean the work is ready for review — further
+  commits are expected.
+- Only transition the ticket to **Under Review** when explicitly asked to request a
+  review (e.g. "request a review", "mark for review", "this is ready for review").
+  If no review was requested, the ticket should remain **In Progress** until merge.
+
+### 5. After Merge
+- The ticket will transition to **Done** automatically if the GitHub-Jira integration
+  is configured. If not, close it manually.
+- Delete the feature branch after merge.
+
+### When NOT to Create a Ticket
+- Trivial single-line typo/doc fixes committed directly to main are fine without a ticket.
+- When in doubt, create one — it's cheap and keeps the board accurate.
 
 ---
 
@@ -218,44 +246,6 @@ Available components: `Intranet`, `Jira`, `Public website`
 - Use Sub-task (ID `10008`) only when breaking down an existing Task.
 - Do NOT use JSM request types (IDs 10067, 10068, 10069) — those are for the
   customer portal only.
-
-## Development Workflow
-
-Follow this workflow for all non-trivial changes (bug fixes, features, refactors):
-
-### 1. Before Starting Work
-- **Find or create a Jira ticket.** Search STS for an existing ticket that covers your
-  task. If none exists, create one (Task type, project STS) with a clear summary and
-  description of the work.
-- Assign the ticket to yourself if unassigned.
-- Transition the ticket to **In Progress**.
-
-### 2. Creating a Branch
-- Name the branch using the ticket key:
-  `STS-<number>-short-description` (e.g. `STS-42-fix-sensor-calibration`)
-- This links the branch to the Jira ticket automatically via the GitHub integration.
-
-### 3. While Working
-- Reference the ticket key in every commit message:
-  `STS-42 fix: correct calibration offset calculation`
-- Keep the ticket updated with any blockers or scope changes via comments.
-
-### 4. Opening a Pull Request
-- Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
-- Opening a PR does **not** automatically mean the work is ready for review — further
-  commits are expected.
-- Only transition the ticket to **Under Review** when explicitly asked to request a
-  review (e.g. "request a review", "mark for review", "this is ready for review").
-  If no review was requested, the ticket should remain **In Progress** until merge.
-
-### 5. After Merge
-- The ticket will transition to **Done** automatically if the GitHub-Jira integration
-  is configured. If not, close it manually.
-- Delete the feature branch after merge.
-
-### When NOT to Create a Ticket
-- Trivial single-line typo/doc fixes committed directly to main are fine without a ticket.
-- When in doubt, create one — it's cheap and keeps the board accurate.
 
 ## Agent Attribution
 
