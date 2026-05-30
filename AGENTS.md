@@ -48,6 +48,7 @@ Follow this workflow for all non-trivial changes (bug fixes, features, refactors
 git checkout main && git pull          # start from a fresh main
 git checkout -b <branch-name>          # create a feature branch
 # ... make changes ...
+git add -p                             # stage changes interactively
 git push -u origin <branch-name>
 gh pr create --base main
 ```
@@ -79,7 +80,7 @@ Keep the ticket updated with any blockers or scope changes via comments.
 - Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
 - Opening a PR does **not** automatically mean the work is ready for review — further
   commits are expected.
-- Only transition the ticket to **Under Review** when explicitly asked to request a
+- Only transition the ticket to **Pending** when explicitly asked to request a
   review (e.g. "request a review", "mark for review", "this is ready for review").
   If no review was requested, the ticket should remain **In Progress** until merge.
 
