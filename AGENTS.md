@@ -185,6 +185,18 @@ If the STS board protocol is extended to support a new format:
 
 ---
 
+## Documentation and changelog
+
+Every PR must include:
+
+- **A `CHANGELOG.md` entry** under `[Unreleased]` describing what changed and why. Use the same type as the branch (`Added`, `Changed`, `Fixed`, `Removed`). Keep it to 1–3 sentences.
+- **Updates to `README.md`** if the change affects the public API, datum format support, protocol details, or any section that describes the current state of the library.
+- **Updates to `AGENTS.md`** if the change introduces or modifies a convention, workflow, or constraint that automated agents or contributors need to follow.
+
+When in doubt, err on the side of updating the docs — a stale README or AGENTS.md is harder to recover from than an extra line in the changelog.
+
+---
+
 ## What NOT to do
 
 - Do not commit directly to `main`.
