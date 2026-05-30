@@ -94,6 +94,61 @@ Keep the ticket updated with any blockers or scope changes via comments.
 
 ---
 
+## Code conventions
+
+- **Python ≥ 3.12** everywhere.
+- **Absolute imports** starting from `subaru` (e.g. `from subaru.sts.client import Datum, Radio`).
+- **Numpy-style docstrings** on all public classes, methods, and functions.
+- **Ruff** for formatting and linting — configuration lives in `pyproject.toml`. Line length 100.
+- Do not add logging frameworks. This is a library; callers control their own logging.
+- Do not introduce runtime dependencies. The library intentionally has no `dependencies` in
+  `pyproject.toml` beyond the Python standard library.
+
+---
+
+## Testing
+
+Tests live in `tests/`. Two categories:
+
+- **Unit tests** — test packing/unpacking, factory methods, and validation logic with no network.
+  These can always run offline.
+- **Integration tests** — `test_radio.py` methods tagged `transmit_method` and `receive_method`
+  open a real TCP connection to the STS board. Skip these when working offline:
+  ```bash
+  uv run pytest -k 'not transmit_method and not receive_method'
+  ```
+
+When adding a new datum format or changing pack/unpack logic, add a round-trip test that packs a
+`Datum` and immediately unpacks the result, verifying the values are identical.
+
+Test files in `tests/` may omit module-level and function-level docstrings (`D100`, `D103` are
+ignored there by ruff).
+
+---
+
+## Documentation and changelog
+
+Every PR must include:
+
+- **A `CHANGELOG.md` entry** under `[Unreleased]` describing what changed and why. Use the same type as the branch (`Added`, `Changed`, `Fixed`, `Removed`). Keep it to 1–3 sentences.
+- **Updates to `README.md`** if the change affects the public API, datum format support, protocol details, or any section that describes the current state of the library.
+- **Updates to `AGENTS.md`** if the change introduces or modifies a convention, workflow, or constraint that automated agents or contributors need to follow.
+
+When in doubt, err on the side of updating the docs — a stale README or AGENTS.md is harder to recover from than an extra line in the changelog.
+
+---
+
+## What NOT to do
+
+- Do not commit directly to `main`.
+- Do not add third-party runtime dependencies.
+- Do not change `Radio.pack` or `Radio.unpack` without adding or updating round-trip tests.
+- Do not lower the 80 % coverage threshold.
+- Do not hard-code machine-specific paths (e.g., absolute paths to `uv`) in source code or tests.
+- Do not use relative imports — all imports must start from `subaru`.
+
+---
+
 ## Architecture
 
 ### `Datum` — `src/subaru/sts/client/datum.py`
@@ -140,38 +195,6 @@ Maximum packet size is 127 bytes. Text payloads are silently truncated to fit.
 
 ---
 
-## Code conventions
-
-- **Python ≥ 3.12** everywhere.
-- **Absolute imports** starting from `subaru` (e.g. `from subaru.sts.client import Datum, Radio`).
-- **Numpy-style docstrings** on all public classes, methods, and functions.
-- **Ruff** for formatting and linting — configuration lives in `pyproject.toml`. Line length 100.
-- Do not add logging frameworks. This is a library; callers control their own logging.
-- Do not introduce runtime dependencies. The library intentionally has no `dependencies` in
-  `pyproject.toml` beyond the Python standard library.
-
----
-
-## Testing
-
-Tests live in `tests/`. Two categories:
-
-- **Unit tests** — test packing/unpacking, factory methods, and validation logic with no network.
-  These can always run offline.
-- **Integration tests** — `test_radio.py` methods tagged `transmit_method` and `receive_method`
-  open a real TCP connection to the STS board. Skip these when working offline:
-  ```bash
-  uv run pytest -k 'not transmit_method and not receive_method'
-  ```
-
-When adding a new datum format or changing pack/unpack logic, add a round-trip test that packs a
-`Datum` and immediately unpacks the result, verifying the values are identical.
-
-Test files in `tests/` may omit module-level and function-level docstrings (`D100`, `D103` are
-ignored there by ruff).
-
----
-
 ## Adding a new datum format
 
 If the STS board protocol is extended to support a new format:
@@ -182,29 +205,6 @@ If the STS board protocol is extended to support a new format:
 4. Add `pack` and `unpack` branches in `Radio.pack` / `Radio.unpack`.
 5. Add unit tests covering the factory method, validation, pack, and unpack.
 6. Update `README.md` with the new factory method and value type.
-
----
-
-## Documentation and changelog
-
-Every PR must include:
-
-- **A `CHANGELOG.md` entry** under `[Unreleased]` describing what changed and why. Use the same type as the branch (`Added`, `Changed`, `Fixed`, `Removed`). Keep it to 1–3 sentences.
-- **Updates to `README.md`** if the change affects the public API, datum format support, protocol details, or any section that describes the current state of the library.
-- **Updates to `AGENTS.md`** if the change introduces or modifies a convention, workflow, or constraint that automated agents or contributors need to follow.
-
-When in doubt, err on the side of updating the docs — a stale README or AGENTS.md is harder to recover from than an extra line in the changelog.
-
----
-
-## What NOT to do
-
-- Do not commit directly to `main`.
-- Do not add third-party runtime dependencies.
-- Do not change `Radio.pack` or `Radio.unpack` without adding or updating round-trip tests.
-- Do not lower the 80 % coverage threshold.
-- Do not hard-code machine-specific paths (e.g., absolute paths to `uv`) in source code or tests.
-- Do not use relative imports — all imports must start from `subaru`.
 
 ---
 
