@@ -219,6 +219,44 @@ Available components: `Intranet`, `Jira`, `Public website`
 - Do NOT use JSM request types (IDs 10067, 10068, 10069) — those are for the
   customer portal only.
 
+## Development Workflow
+
+Follow this workflow for all non-trivial changes (bug fixes, features, refactors):
+
+### 1. Before Starting Work
+- **Find or create a Jira ticket.** Search STS for an existing ticket that covers your
+  task. If none exists, create one (Task type, project STS) with a clear summary and
+  description of the work.
+- Assign the ticket to yourself if unassigned.
+- Transition the ticket to **In Progress**.
+
+### 2. Creating a Branch
+- Name the branch using the ticket key:
+  `STS-<number>-short-description` (e.g. `STS-42-fix-sensor-calibration`)
+- This links the branch to the Jira ticket automatically via the GitHub integration.
+
+### 3. While Working
+- Reference the ticket key in every commit message:
+  `STS-42 fix: correct calibration offset calculation`
+- Keep the ticket updated with any blockers or scope changes via comments.
+
+### 4. Opening a Pull Request
+- Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
+- Opening a PR does **not** automatically mean the work is ready for review — further
+  commits are expected.
+- Only transition the ticket to **Under Review** when explicitly asked to request a
+  review (e.g. "request a review", "mark for review", "this is ready for review").
+  If no review was requested, the ticket should remain **In Progress** until merge.
+
+### 5. After Merge
+- The ticket will transition to **Done** automatically if the GitHub-Jira integration
+  is configured. If not, close it manually.
+- Delete the feature branch after merge.
+
+### When NOT to Create a Ticket
+- Trivial single-line typo/doc fixes committed directly to main are fine without a ticket.
+- When in doubt, create one — it's cheap and keeps the board accurate.
+
 ## Agent Attribution
 
 Whenever you create or edit a Jira issue, comment, or any Atlassian content, append a
