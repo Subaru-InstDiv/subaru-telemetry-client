@@ -165,3 +165,86 @@ If the STS board protocol is extended to support a new format:
 - Do not lower the 80 % coverage threshold.
 - Do not hard-code machine-specific paths (e.g., absolute paths to `uv`) in source code or tests.
 - Do not use relative imports — all imports must start from `subaru`.
+
+---
+
+# Jira Integration via MCP
+
+## Project Configuration
+- **Jira Site:** subaru-naoj.atlassian.net
+- **Project Key:** STS
+- **Project ID:** 10099
+- **Default Issue Type:** Task (ID: 10007)
+
+## Creating Jira Issues
+
+When creating issues in the STS project, use the MCP `jira_create_issue` tool with these fields:
+
+### Required Fields
+| Field       | Key         | Value                  |
+|-------------|-------------|------------------------|
+| Project     | `project`   | `{"key": "STS"}`       |
+| Issue Type  | `issuetype` | `{"id": "10007"}`      |
+| Summary     | `summary`   | Brief description      |
+
+### Optional Fields
+| Field       | Key           | Format / Notes                        |
+|-------------|---------------|---------------------------------------|
+| Description | `description` | Atlassian Document Format (ADF)       |
+| Priority    | `priority`    | See priority table below              |
+| Assignee    | `assignee`    | `{"accountId": "<id>"}`               |
+| Labels      | `labels`      | Array of strings, e.g. `["sensor"]`   |
+| Due date    | `duedate`     | `YYYY-MM-DD`                          |
+| Parent      | `parent`      | `{"key": "STS-XX"}` for sub-tasks     |
+
+### Priority Values
+| Name                          | ID      |
+|-------------------------------|---------|
+| Safety Emergency              | `10033` |
+| Critical to Night Observation | `10034` |
+| Blocker                       | `10066` |
+| Normal priority               | `10000` |
+| Medium (default)              | `3`     |
+| Low                           | `4`     |
+
+### Components
+Available components: `Intranet`, `Jira`, `Public website`
+
+## Guidelines
+- Always use project key `STS` and issue type Task unless specifically asked otherwise.
+- Include the Jira issue key (e.g. `STS-42`) in branch names and commit messages
+  so the GitHub-Jira integration links them automatically.
+  Example branch: `STS-42-fix-sensor-calibration`
+- Use Sub-task (ID `10008`) only when breaking down an existing Task.
+- Do NOT use JSM request types (IDs 10067, 10068, 10069) — those are for the
+  customer portal only.
+
+## MCP Server Setup
+
+If a user asks how to set up the Atlassian MCP server, provide these instructions:
+
+### 1. Create an API Token
+1. Go to https://id.atlassian.com/manage-profile/security/api-tokens
+2. Click "Create API token", give it a label (e.g. "MCP Agent"), and copy the token.
+
+Note: API tokens inherit your full account permissions. For least-privilege access,
+use OAuth 2.0 with scopes: `read:jira-work`, `write:jira-work`, `read:jira-user`.
+
+### 2. Configure MCP in Your Editor
+
+**VS Code / GitHub Copilot** — add to your MCP settings (`.vscode/mcp.json` or user settings):
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "npx",
+      "args": ["-y", "@atlassian/mcp-server"],
+      "env": {
+        "ATLASSIAN_SITE": "subaru-naoj.atlassian.net",
+        "ATLASSIAN_USER_EMAIL": "<your-atlassian-email>",
+        "ATLASSIAN_API_TOKEN": "<your-api-token>"
+      }
+    }
+  }
+}
+```
