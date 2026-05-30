@@ -29,40 +29,68 @@ Coverage must stay at or above **80 %**. The CI gate will fail below this thresh
 
 ---
 
-## Git workflow
+## Development Workflow
+
+Follow this workflow for all non-trivial changes (bug fixes, features, refactors):
+
+### 1. Before Starting Work
+- **Find or create a Jira ticket.** Search STS for an existing ticket that covers your
+  task. If none exists, create one (Task type, project STS) with a clear summary and
+  description of the work.
+- Assign the ticket to yourself if unassigned.
+- Transition the ticket to **In Progress**.
+
+### 2. Creating a Branch
 
 **Never commit directly to `main`.** All changes must go through a feature branch and pull request.
 
 ```sh
 git checkout main && git pull          # start from a fresh main
-git checkout -b <type>/<description>   # create a feature branch
+git checkout -b <branch-name>          # create a feature branch
 # ... make changes ...
 git push -u origin <branch-name>
 gh pr create --base main
 ```
 
-Branch names follow `<type>/<short-description>` in lowercase kebab-case:
+Name branches using the ticket key and a type prefix in lowercase kebab-case:
 
-| Type | When to use |
+| Type | Example branch |
 |---|---|
-| `feat/` | new public API, new datum format support |
-| `fix/` | bug fix |
-| `chore/` | dependency updates, config changes |
-| `docs/` | README or documentation only |
-| `refactor/` | internal restructuring with no behaviour change |
-| `test/` | adding or improving tests |
+| `feat/` | `feat/STS-7-add-datum-batch-helper` |
+| `fix/` | `fix/STS-42-radio-recv-timeout` |
+| `chore/` | `chore/STS-12-bump-ruff` |
+| `docs/` | `docs/STS-5-update-readme` |
+| `refactor/` | `refactor/STS-9-simplify-pack` |
+| `test/` | `test/STS-3-add-roundtrip-tests` |
 
-Examples: `feat/add-datum-batch-helper`, `fix/radio-recv-timeout`, `chore/bump-ruff`
+### 3. While Working
 
-### Commit message format
+Reference the ticket key in every commit message:
 
 ```
-feat: add FloatArray datum format
-fix: handle partial recv in _recvn
-chore: upgrade ruff to 0.9.0
+STS-42 feat: add FloatArray datum format
+STS-42 fix: handle partial recv in _recvn
 ```
 
 Keep the subject line under 72 characters. Add a blank line and body if the change is non-obvious.
+Keep the ticket updated with any blockers or scope changes via comments.
+
+### 4. Opening a Pull Request
+- Include the ticket key in the PR title: `STS-42 fix: sensor calibration`
+- Opening a PR does **not** automatically mean the work is ready for review — further
+  commits are expected.
+- Only transition the ticket to **Under Review** when explicitly asked to request a
+  review (e.g. "request a review", "mark for review", "this is ready for review").
+  If no review was requested, the ticket should remain **In Progress** until merge.
+
+### 5. After Merge
+- The ticket will transition to **Done** automatically if the GitHub-Jira integration
+  is configured. If not, close it manually.
+- Delete the feature branch after merge.
+
+### When NOT to Create a Ticket
+- Trivial single-line typo/doc fixes committed directly to main are fine without a ticket.
+- When in doubt, create one — it's cheap and keeps the board accurate.
 
 ---
 
@@ -165,3 +193,125 @@ If the STS board protocol is extended to support a new format:
 - Do not lower the 80 % coverage threshold.
 - Do not hard-code machine-specific paths (e.g., absolute paths to `uv`) in source code or tests.
 - Do not use relative imports — all imports must start from `subaru`.
+
+---
+
+# Jira Integration via MCP
+
+## Project Configuration
+- **Jira Site:** subaru-naoj.atlassian.net
+- **Project Key:** STS
+- **Project ID:** 10099
+- **Default Issue Type:** Task (ID: 10007)
+
+## Creating Jira Issues
+
+When creating issues in the STS project, use the MCP `jira_create_issue` tool with these fields:
+
+### Required Fields
+| Field       | Key         | Value                  |
+|-------------|-------------|------------------------|
+| Project     | `project`   | `{"key": "STS"}`       |
+| Issue Type  | `issuetype` | `{"id": "10007"}`      |
+| Summary     | `summary`   | Brief description      |
+
+### Optional Fields
+| Field       | Key           | Format / Notes                        |
+|-------------|---------------|---------------------------------------|
+| Description | `description` | Atlassian Document Format (ADF)       |
+| Priority    | `priority`    | See priority table below              |
+| Assignee    | `assignee`    | `{"accountId": "<id>"}`               |
+| Labels      | `labels`      | Array of strings, e.g. `["sensor"]`   |
+| Due date    | `duedate`     | `YYYY-MM-DD`                          |
+| Parent      | `parent`      | `{"key": "STS-XX"}` for sub-tasks     |
+
+### Priority Values
+| Name                          | ID      |
+|-------------------------------|---------|
+| Safety Emergency              | `10033` |
+| Critical to Night Observation | `10034` |
+| Blocker                       | `10066` |
+| Normal priority               | `10000` |
+| Medium (default)              | `3`     |
+| Low                           | `4`     |
+
+### Components
+Available components: `Intranet`, `Jira`, `Public website`
+
+## Guidelines
+- Always use project key `STS` and issue type Task unless specifically asked otherwise.
+- Include the Jira issue key (e.g. `STS-42`) in branch names and commit messages
+  so the GitHub-Jira integration links them automatically.
+  Example branch: `STS-42-fix-sensor-calibration`
+- Use Sub-task (ID `10008`) only when breaking down an existing Task.
+- Do NOT use JSM request types (IDs 10067, 10068, 10069) — those are for the
+  customer portal only.
+
+## Agent Attribution
+
+Whenever you create or edit a Jira issue, comment, or any Atlassian content, append a
+footer identifying the tool and model that performed the action:
+
+```
+---
+*Edited by [tool-name] ([model-name]) on behalf of @[github-username]*
+```
+
+Example:
+```
+---
+*Edited by GitHub Copilot CLI (claude-sonnet-4.6) on behalf of @wtgee*
+```
+
+## MCP Server Setup
+
+Atlassian hosts the MCP server remotely — no local installation, Docker, or container needed.
+The default and recommended approach is to connect directly to the Atlassian-hosted server.
+
+### 1. Create an API Token
+1. Go to https://id.atlassian.com/manage-profile/security/api-tokens
+2. Click "Create API token", give it a label (e.g. "MCP Agent"), and copy the token.
+
+Note: API tokens inherit your full account permissions. For least-privilege access,
+use OAuth 2.0 with scopes: `read:jira-work`, `write:jira-work`, `read:jira-user`.
+
+### 2. Create Your Basic Auth Credential
+
+```bash
+echo -n "your-email@example.com:your-api-token" | base64
+```
+
+### 3. Configure Your MCP Client
+
+**GitHub Copilot CLI** — add to `~/.copilot/mcp-config.json`:
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "headers": {
+        "Authorization": "Basic <your-base64-credential>"
+      }
+    }
+  }
+}
+```
+
+**VS Code / GitHub Copilot Chat** — add to `.vscode/mcp.json` or user MCP settings:
+```json
+{
+  "mcpServers": {
+    "atlassian": {
+      "type": "local",
+      "command": "npx",
+      "args": [
+        "mcp-remote@latest",
+        "https://mcp.atlassian.com/v1/mcp",
+        "--header",
+        "Authorization: Basic <your-base64-credential>"
+      ]
+    }
+  }
+}
+```
