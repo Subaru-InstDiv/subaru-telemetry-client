@@ -78,7 +78,8 @@ d5 = Datum.FloatWithText(id=1094, timestamp=now, value=(2.5, 'm/s'))
 d6 = Datum.Exponent(id=1095, timestamp=now, value=1.0)
 
 # Create a radio to broadcast/receive data.
-radio = Radio() 
+# Pass host="sts" (or your server hostname) to connect to production.
+radio = Radio()
 radio.transmit([d1, d2, d3, d4, d5, d6])
 
 # Get the lastest values by id.
@@ -89,7 +90,7 @@ print(latest)
 ## Configuration
 
 - Radio defaults (as defined in src/subaru/sts/client/radio.py):
-    - HOST: `sts`
+    - HOST: `localhost`
     - PORT: `9001`
     - TIMEOUT: `5.0` seconds
     - DRY_RUN: `False`

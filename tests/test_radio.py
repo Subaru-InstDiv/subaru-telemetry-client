@@ -36,7 +36,7 @@ class TestRadioInit:
     def test_default_constructor(self):
         """Test the default constructor of the Radio class."""
         radio = Radio()
-        assert radio.host == "sts"
+        assert radio.host == "localhost"
         assert radio.port == 9001
         assert radio.timeout == 5.0
 
@@ -50,14 +50,14 @@ class TestRadioInit:
     def test_constructor_with_custom_port(self):
         """Test constructor with custom port."""
         radio = Radio(port=8080)
-        assert radio.host == "sts"
+        assert radio.host == "localhost"
         assert radio.port == 8080
         assert radio.timeout == 5.0
 
     def test_constructor_with_custom_timeout(self):
         """Test constructor with custom timeout."""
         radio = Radio(timeout=10.0)
-        assert radio.host == "sts"
+        assert radio.host == "localhost"
         assert radio.port == 9001
         assert radio.timeout == 10.0
 
@@ -77,7 +77,7 @@ class TestRadioInit:
     def test_repr_default(self):
         """Test __repr__ with default values."""
         radio = Radio()
-        expected = "Radio(host='sts', port=9001, timeout=5.0, dry_run=False)"
+        expected = "Radio(host='localhost', port=9001, timeout=5.0, dry_run=False)"
         assert repr(radio) == expected
 
 
@@ -445,7 +445,7 @@ class TestRadioTransmit:
         # Verify socket operations
         mock_socket_class.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM)
         mock_socket.settimeout.assert_called_once_with(5.0)
-        mock_socket.connect.assert_called_once_with(("sts", 9001))
+        mock_socket.connect.assert_called_once_with(("localhost", 9001))
 
         # Verify commands sent
         calls = mock_socket.sendall.call_args_list
@@ -558,7 +558,7 @@ class TestRadioReceive:
 
         # Verify socket operations
         mock_socket.settimeout.assert_called_once_with(5.0)
-        mock_socket.connect.assert_called_once_with(("sts", 9001))
+        mock_socket.connect.assert_called_once_with(("localhost", 9001))
 
         # Verify read mode entered
         calls = mock_socket.sendall.call_args_list
@@ -730,7 +730,7 @@ class TestRadioConstants:
 
     def test_default_constants(self):
         """Test that class constants have expected values."""
-        assert Radio.HOST == "sts"
+        assert Radio.HOST == "localhost"
         assert Radio.PORT == 9001
         assert Radio.TIMEOUT == 5.0
 
