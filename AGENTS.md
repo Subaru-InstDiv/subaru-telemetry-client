@@ -174,7 +174,7 @@ on mismatch.
 
 ### `Radio` — `src/subaru/sts/client/radio.py`
 
-The TCP client. Connects to the STS board (default `host="sts"`, `port=9001`), speaks the binary
+The TCP client. Connects to the STS board (default `host="localhost"`, `port=9001`), speaks the binary
 protocol, and exposes two public methods:
 
 - `radio.transmit(data)` — sends a list of `Datum` objects

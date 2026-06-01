@@ -93,7 +93,7 @@ print(latest)
     - HOST: `localhost`
     - PORT: `9001`
     - TIMEOUT: `5.0` seconds
-    - DRY_RUN: `False`
+    - `dry_run`: `False` (constructor parameter; no class constant)
 - You can override these via the constructor:
     - `Radio(host='example.org', port=9001, timeout=2.0, dry_run=True)`
 - You can also override `dry_run` for individual transmit calls:
@@ -103,7 +103,7 @@ print(latest)
 
 - Some tests are pure unit tests (packing/unpacking, factory methods), and others perform live network I/O against the
   default STS HOST/PORT.
-- Running all tests as-is may attempt to connect to sts:9001 and may fail or hang if not reachable.
+- Running all tests as-is may attempt to connect to localhost:9001 and may fail or hang if no local STS server is running.
 
 ### Run tests
 
