@@ -270,18 +270,26 @@ Available components: `Intranet`, `Jira`, `Public website`
 
 ## Agent Attribution
 
-Whenever you create or edit a Jira issue, comment, or any Atlassian content, append a
-footer identifying the tool and model that performed the action:
+Whenever you create or edit any content on GitHub (e.g. commits, pull requests) or Atlassian/Jira (e.g. issues, comments, pages), append a footer identifying the tool and model that performed the action. Be smart about using the correct identifier depending on the platform:
+- For **GitHub** content, use the GitHub username (e.g., `@wtgee`).
+- For **Atlassian/Jira** content, use the Jira display name (e.g., `@Wilfred Gee`).
 
+### GitHub Template:
 ```
 ---
-*Edited by [tool-name] ([model-name]) on behalf of @[github-username]*
+*Edited by [tool-name] ([model-name]) on behalf of @wtgee*
 ```
 
-Example:
+### Atlassian/Jira Template:
 ```
 ---
-*Edited by GitHub Copilot CLI (claude-sonnet-4.6) on behalf of @wtgee*
+*Edited by [tool-name] ([model-name]) on behalf of @Wilfred Gee*
+```
+
+Example (Jira comment):
+```
+---
+*Edited by GitHub Copilot CLI (claude-sonnet-4.6) on behalf of @Wilfred Gee*
 ```
 
 ## MCP Server Setup
