@@ -121,7 +121,7 @@ Datum IDs 1 and 2 are the recommended targets for connectivity checks and smoke 
 import time
 from subaru.sts.client import Radio, Datum
 
-radio = Radio(host='sts')  # or 'localhost' for a local Docker board
+radio = Radio()  # defaults to localhost:9001; pass host='sts' for production
 
 # Read the board's CPU load — always available, no write needed
 cpu = radio.receive([0])
