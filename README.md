@@ -99,6 +99,42 @@ print(latest)
 - You can also override `dry_run` for individual transmit calls:
     - `radio.transmit(data, dry_run=True)`
 
+## Internal datums — connectivity and smoke-testing
+
+The STS board always pre-seeds three datum IDs at startup that do not correspond to any physical sensor. They exist **in-memory only** — they are not rows in the MySQL `datum` table, so writes to them are not archived.
+
+| Datum ID | Name | Format | Notes |
+|---|---|---|---|
+| `0` | STSboard CPU Load | `Float` | Overwritten every 5 s by the board; client writes are accepted but immediately superseded |
+| `1` | STSboard Test1 | `IntegerWithText` | Writable; no alarm, no archival side-effects; persists in memory until board restarts |
+| `2` | STSboard Test2 | `FloatWithText` | Writable; no alarm, no archival side-effects; persists in memory until board restarts |
+
+Datum IDs 1 and 2 are the recommended targets for connectivity checks and smoke tests. Writes succeed at the protocol level and are immediately readable back via `receive()`.
+
+> **Format note:** The format byte in the transmitted packet determines how the value is stored. Pass the correct datum type — `IntegerWithText` for ID 1, `FloatWithText` for ID 2 — to ensure `receive()` returns the expected Python type.
+
+> **MySQL note:** Because these datums are not in the `datum` table, the bridge will log (and discard) a MySQL write error for each update. This is harmless and does not affect in-memory reads.
+
+### Connectivity check example
+
+```python
+import time
+from subaru.sts.client import Radio, Datum
+
+radio = Radio()
+
+# Read the board's CPU load — always available, no write needed
+cpu = radio.receive([0])
+print('Board CPU load:', cpu[0].value)
+
+# Round-trip a write+read on the safe test datum
+now = int(time.time())
+radio.transmit([Datum.IntegerWithText(id=1, timestamp=now, value=(42, 'ok'))])
+result = radio.receive([1])
+assert result[0].value == (42, 'ok'), f"unexpected: {result[0].value}"
+print('Round-trip OK')
+```
+
 ## Tests
 
 - Some tests are pure unit tests (packing/unpacking, factory methods), and others perform live network I/O against the
