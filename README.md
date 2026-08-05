@@ -1,4 +1,4 @@
-# STSpy
+# subaru-telemetry-client (STSpy)
 
 [![Tests](https://github.com/Subaru-InstDiv/subaru-telemetry-client/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Subaru-InstDiv/subaru-telemetry-client/actions/workflows/python-tests.yml)
 [![codecov](https://codecov.io/gh/Subaru-InstDiv/subaru-telemetry-client/branch/main/graph/badge.svg)](https://codecov.io/gh/Subaru-InstDiv/subaru-telemetry-client)
